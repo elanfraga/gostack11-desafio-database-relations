@@ -22,6 +22,7 @@ export default class Customers1589424814856 implements MigrationInterface {
           {
             name: 'email',
             type: 'varchar',
+            isUnique: true,
           },
           {
             name: 'created_at',

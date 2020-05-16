@@ -23,11 +23,11 @@ export default class OrdersProducts1589496451654 implements MigrationInterface {
           },
           {
             name: 'price',
-            type: 'numeric',
+            type: 'numeric(5,2)',
           },
           {
             name: 'quantity',
-            type: 'numeric',
+            type: 'int',
           },
           {
             name: 'created_at',

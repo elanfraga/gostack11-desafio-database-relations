@@ -34,33 +34,41 @@ class CreateProductService {
     const customer = await this.customersRepository.findById(customer_id);
 
     if (!customer) {
-      throw new AppError('Customer address already used.');
+      throw new AppError('Customer not found.');
     }
 
-    const allProducts = await this.productsRepository.findAllById(products);
+    const idProducts = products.map(({ id }) => ({ id }));
 
-    if (products.length > 0 && products.length !== allProducts.length) {
-      throw new AppError('Products address already used.');
+    const allProducts = await this.productsRepository.findAllById(idProducts);
+
+    if (products.length !== allProducts.length) {
+      throw new AppError('Products not found.');
     }
 
-    await this.ordersRepository.create({
-      customer,
-      products: allProducts,
+    allProducts.forEach(product => {
+      const productOrder = products.find(({ id }) => product.id === id);
+
+      if (productOrder) {
+        if (productOrder.quantity > product.quantity) {
+          throw new AppError('Product with insuficient quantity');
+        }
+      }
     });
-    // const productsDTO = products.map<IProductDTO>(prod => {
-    //   const prodDTO = new IProductDTO();
 
-    //   return prodDTO;
-    // });
-    // const dto = new ICreateOrderDTO();
-    // dto.
+    const arrayProducts = allProducts.map(({ id, price }) => ({
+      product_id: id,
+      price,
+      quantity: products.find(prod => prod.id === id)?.quantity || 0,
+    }));
 
-    // const order = await this.ordersRepository.create({
-    //   customer_id,
-    //   products,
-    // });
+    const order = await this.ordersRepository.create({
+      customer,
+      products: arrayProducts,
+    });
 
-    return new Order();
+    await this.productsRepository.updateQuantity(products);
+
+    return order;
   }
 }
 

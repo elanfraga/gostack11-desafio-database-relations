@@ -1,15 +1,11 @@
 import {
   Entity,
-  Column,
   PrimaryGeneratedColumn,
   CreateDateColumn,
   UpdateDateColumn,
-  // OneToOne,
+  OneToOne,
   JoinColumn,
-  // OneToMany,
-  ManyToOne,
-  JoinTable,
-  ManyToMany,
+  OneToMany,
 } from 'typeorm';
 
 import Customer from '@modules/customers/infra/typeorm/entities/Customer';
@@ -20,18 +16,15 @@ class Order {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column()
-  customer_id: string;
-
-  // vários Oders(Many) para um Customer(One)
-  @ManyToOne(() => Customer)
+  @OneToOne(() => Customer, { eager: true })
   @JoinColumn({ name: 'customer_id' })
   customer: Customer;
 
-  @ManyToMany(() => OrdersProducts, {
-    cascade: true,
+  @OneToMany(() => OrdersProducts, ordersProducts => ordersProducts.order, {
+    cascade: ['insert'],
+    eager: true,
   })
-  @JoinTable()
+  @JoinColumn()
   order_products: OrdersProducts[];
 
   @CreateDateColumn()
